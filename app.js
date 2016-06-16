@@ -1,9 +1,8 @@
 require('dotenv').load(); //requires environment variables
 var express = require('express');
-var db = require('mongoose');
 var app = express();
+var db = require('./config/db');
 
-db.connect();
 app.listen('3030', function(){
   console.log('listening on http localhost port 3030');
 });
