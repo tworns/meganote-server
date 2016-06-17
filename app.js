@@ -22,6 +22,16 @@ app.get('/',function(req,res){
   .then(function(notes){
     res.json(notes);
   });
+});
+//READ ONE note
+  app.get('/:id',function(req,res){
+    Note.findOne({
+      _id: req.params.id})
+    .then(function(noteData){
+      res.json(noteData);
+    });
+});
+
   app.post('/',function(req,res){
       var note = new Note({
         title: req.body.note.title,
@@ -36,5 +46,3 @@ app.get('/',function(req,res){
         });
       });
   });
-
-});
