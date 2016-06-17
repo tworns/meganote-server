@@ -19,6 +19,7 @@ app.use(bodyParser.json());
 var Note = db.model('Note', {title:String});
 app.get('/',function(req,res){
   Note.find({}, {title:'1'})
+  .sort({updated_at: -1}) //Sort descending, 'desc' also works
   .then(function(notes){
     res.json(notes);
   });
