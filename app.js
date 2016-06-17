@@ -11,7 +11,11 @@ app.listen('3030', function(){
 
 app.use(function(req,res,next){
   res.header('Access-Control-Allow-Headers', '*');
+  //allow JSON
   res.header('Access-Control-Allow-Headers','Content-Type');
+  //Allow the rest of the http verbs
+  res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
+  //continue request processing
   next();
 });
 app.use(bodyParser.json());
@@ -32,7 +36,7 @@ app.get('/',function(req,res){
       res.json(noteData);
     });
 });
-
+  //Create a note
   app.post('/',function(req,res){
       var note = new Note({
         title: req.body.note.title,
@@ -46,4 +50,20 @@ app.get('/',function(req,res){
           note:noteData
         });
       });
+  });
+  //update a note
+  app.put('/:id',function(req,res){
+    Note.findOne(
+      {_id: req.params.id}
+    ).then(function(note){
+        note.title = req.body.note.title;
+        note.body_html = req.body.note.title;
+        note.save()
+        .then(function(){
+          res.json({
+            message: 'Changes have been saved',
+            note:note
+          });
+        });
+    });
   });

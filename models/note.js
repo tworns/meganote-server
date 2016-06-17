@@ -5,4 +5,8 @@ var NoteSchema = db.Schema({
   body_text:String,
   updated_at:{type:date,default:Date.now}
 });
+NoteSchema.pre('save',function(next){
+  this.updated_at = Date.now();
+  next();
+});
 module.exports = Note;
