@@ -1,69 +1,111 @@
-require('dotenv').load(); //requires environment variables and loads them in
+
+require('dotenv').load();
 var express = require('express');
-var app = express();
-var db = require('./config/db');
 var Note = require('./models/note');
 var bodyParser = require('body-parser');
 
-app.listen('3030', function(){
-  console.log('listening on http localhost port 3030');
-});
+var app = express();
 
-app.use(function(req,res,next){
-  res.header('Access-Control-Allow-Headers', '*');
-  //allow JSON
-  res.header('Access-Control-Allow-Headers','Content-Type');
-  //Allow the rest of the http verbs
+// Middleware
+app.use(function(req, res, next) {
+  // Allow CORS.
+  res.header('Access-Control-Allow-Origin', '*');
+
+  // Allow Content-Type header (for JSON payloads).
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+
+  // Allow more HTTP verbs.
   res.header('Access-Control-Allow-Methods', 'GET,POST,PUT,DELETE');
-  //continue request processing
+
+  // Continue processing the request.
   next();
 });
+
+// Body parsing for JSON POST/PUT payloads
 app.use(bodyParser.json());
 
-var Note = db.model('Note', {title:String});
-app.get('/',function(req,res){
-  Note.find({}, {title:'1'})
-  .sort({updated_at: -1}) //Sort descending, 'desc' also works
-  .then(function(notes){
-    res.json(notes);
-  });
-});
-//READ ONE note
-  app.get('/:id',function(req,res){
-    Note.findOne({
-      _id: req.params.id})
-    .then(function(noteData){
-      res.json(noteData);
+// READ all notes
+app.get('/', function(req, res) {
+  Note
+    .find()
+    .sort({ updated_at: 'desc' })
+    .then(function(notes) {
+      res.json(notes);
     });
 });
-  //Create a note
-  app.post('/',function(req,res){
-      var note = new Note({
-        title: req.body.note.title,
-        body_html: req.body.note.body_html
-      });
 
-      note.save()
-      .then(function(noteData){
-        res.json({
-          message: 'successfully updated note',
-          note:noteData
-        });
-      });
+// READ one note
+app.get('/:id', function(req, res) {
+  Note
+    .findOne({
+      _id: req.params.id
+    })
+    .then(function(note) {
+      res.json(note);
+    });
+});
+
+// CREATE a note
+app.post('/', function(req, res) {
+  var note = new Note({
+    title: req.body.note.title,
+    body_html: req.body.note.body_html
   });
-  //update a note
-  app.put('/:id',function(req,res){
-    Note.findOne(
-      {_id: req.params.id}
-    ).then(function(note){
+
+  note
+    .save()
+    .then(function(noteData) {
+      res.json({
+        message: 'Successfully created note',
+        note: noteData
+      });
+    });
+});
+
+// UPDATE a note
+app.put('/:id', function(req, res) {
+  Note
+    .findOne({
+      _id: req.params.id
+    })
+    .then(
+      function(note) {
         note.title = req.body.note.title;
-        note.body_html = req.body.note.title;
-        note.save()
-        .then(function(){
+        note.body_html = req.body.note.body_html;
+        note
+          .save()
+          .then(function() {
+            res.json({
+              message: 'Your changes have been saved.',
+              note: note
+            },
+            function(result) {
+              res.json({ message: 'Aww, cuss!' });
+            });
+          });
+      },
+      function(result) {
+        res.json({ message: 'Aww, cuss!' });
+      });
+});
+
+app.delete('/:id', function(req, res) {
+  Note
+    .findOne({
+      _id: req.params.id
+    })
+    .then(function(note) {
+      note
+        .remove()
+        .then(function() {
           res.json({
-            message: 'Changes have been saved',
-            note:note
+            message: 'That note has been deleted.',
+            note: note
           });
         });
     });
-  });
+});
+
+app.listen(3030, function() {
+  console.log('Listening on http://localhost:3030...');
+});
