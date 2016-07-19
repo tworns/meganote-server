@@ -4,7 +4,7 @@ Meganote server is a REST API for note-taking.
 
 ## Setup
 
-Copy and edit DOTENV configuration
+Copy and edit DOTENV configuration, example env configuartion provided.
 
 ```shell
 cp .env.example .env
